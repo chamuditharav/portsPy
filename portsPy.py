@@ -1,3 +1,9 @@
+"""
+Autor : Chamuditha Ravindu
+Website : https://chamuditharavindu.me
+github : https://github.com/chamuditharav
+"""
+
 import socket
 import sys
 
