@@ -1,3 +1,8 @@
+"""
+Author	: Chamuditha Ravindu
+Website : https://chamuditharavindu.me
+"""
+
 import pyfiglet
 import sys
 import socket
