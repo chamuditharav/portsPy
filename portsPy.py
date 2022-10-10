@@ -1,71 +1,56 @@
 """
-Autor : Chamuditha Ravindu
-Website : https://chamuditharavindu.me
-github : https://github.com/chamuditharav
+Author  : Chamuditha Ravindu
+Website : chamuditharavindu.me
+Github  : chamuditharav
 """
-
 import socket
-import sys
 
 
-def scanHost(ip, startPort, endPort):
-    """ Starts a TCP scan on a given IP address """
+def scan(target, ports):
+    
+    print(f"\n Starting Scan for {str(target)}")
+    print("\n\tPort \t Status")
+    #print("Starting Scan for ")
 
-    print('[*] Starting TCP port scan on host %s' % ip)
+    if("," in ports):
+        for port in ports.split(","):
+            scan_port(target, port)
+    elif("-" in ports):
+        ports = ports.split("-")
+        #print(ports)
+        if(int(ports[0].strip()) < int(ports[1].strip())):
+            for port in range(int(ports[0].strip()), int(ports[1].strip())+1):
+                scan_port(target, int(port))
+        else:
+            print("No")
+            for port in range(int(ports[1].strip()), int(ports[0].strip())+1):
+                scan_port(target, int(port))
 
-    # Begin TCP scan on host
-    tcp_scan(ip, startPort, endPort)
-
-    print('[+] TCP scan on host %s complete' % ip)
-
-
-def scanRange(network, startPort, endPort):
-    """ Starts a TCP scan on a given IP address range """
-
-    print('[*] Starting TCP port scan on network %s.0' % network)
-
-    # Iterate over a range of host IP addresses and scan each target
-    for host in range(1, 255):
-        ip = network + '.' + str(host)
-        tcp_scan(ip, startPort, endPort)
-
-    print('[+] TCP scan on network %s.0 complete' % network)
+    else:
+        #for port in range(1, ports):
+        scan_port(target, int(ports.strip()))
 
 
-def tcp_scan(ip, startPort, endPort):
-    """ Creates a TCP socket and attempts to connect via supplied ports """
-
-    for port in range(startPort, endPort + 1):
-        try:
-            # Create a new socket
-            tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            
-            # Print if the port is open
-            if not tcp.connect_ex((ip, port)):
-                print('[+] %s:%d/TCP Open' % (ip, port))
-                tcp.close()
-                
-        except Exception:
+def scan_port(ipaddress, port):
+    try:
+        sock = socket.socket()
+        sock.connect((ipaddress, port))
+        print(f"[+]\t{str(port)} \t Open")
+        sock.close()
+    except:
+        if(fullReport in ["y","Y","yes","YES"]):
+            print(f"[-]\t{str(port)} \t Close")
+        else:
             pass
 
 
-if __name__ == '__main__':
-    # Timeout in seconds
-    socket.setdefaulttimeout(0.01)
+targets = input("[*] Enter the ip address (seperate by ,): ")
+ports = str(input("[*] Port/s eg:- (80) , (80,8080) , (70-500): "))
+fullReport = str(input("[*] Full Report (All port status) (Y/N) Default is N : "))
 
-    if len(sys.argv) < 4:
-        print('Usage: ./portscanner.py <IP address> <start port> <end port>')
-        print('Example: ./portscanner.py 192.168.1.10 1 65535\n')
-        print('Usage: ./portscanner.py <network> <start port> <end port> -n')
-        print('Example: ./portscanner.py 192.168.1 1 65535 -n')
-
-    elif len(sys.argv) >= 4:
-        network   = sys.argv[1]
-        startPort = int(sys.argv[2])
-        endPort   = int(sys.argv[3])
-
-    if len(sys.argv) == 4:
-        scanHost(network, startPort, endPort)
-
-    if len(sys.argv) == 5:
-        scanRange(network, startPort, endPort)
+if ',' in targets:
+    print("[*] Scanning multiple targets")
+    for ip_addr in targets.split(','):
+        scan(ip_addr.strip(' '), ports)
+else:
+    scan(targets, ports)
